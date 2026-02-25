@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nebula Drift: Rosette Preview</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="preview">
+      <h1>Nebula Drift: Rosette</h1>
+      <p class="subtitle">Web preview snippet for HTML, CSS, and JavaScript.</p>
+
+      <section class="panel" aria-labelledby="palette-title">
+        <h2 id="palette-title">Palette</h2>
+        <label for="filter">Filter tokens</label>
+        <input id="filter" name="filter" type="search" placeholder="keyword, #8A..." />
+        <ul id="palette-list"></ul>
+      </section>
+
+      <section class="panel" aria-labelledby="markup-title">
+        <h2 id="markup-title">Markup Sample</h2>
+        <pre><code>&lt;div class="token keyword"&gt;const&lt;/div&gt;</code></pre>
+      </section>
+
+      <section class="panel" aria-labelledby="table-title">
+        <h2 id="table-title">Token Table</h2>
+        <table>
+          <thead>
+            <tr><th scope="col">Token</th><th scope="col">Hex</th><th scope="col">Family</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>keyword</code></td><td>#C43030</td><td>warm</td></tr>
+            <tr><td><code>function</code></td><td>#8AB4E8</td><td>cool</td></tr>
+            <tr><td><code>comment</code></td><td>#4A3A6A</td><td>muted</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <button id="toggle-btn" type="button">Toggle glow</button>
+      <footer>
+        <small>Preview for screenshot composition in README.</small>
+        <small>Press <kbd>/</kbd> to focus search, <kbd>Esc</kbd> to reset.</small>
+        <small aria-hidden="true">Nebula Drift: Rosette web sample</small>
+      </footer>
+    </main>
+
+    <script src="./app.js" defer></script>
+  </body>
+  </html>

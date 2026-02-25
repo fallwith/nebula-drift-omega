@@ -1,0 +1,22 @@
+# Vim / Neovim temp files
+*.swp
+*.swo
+*.swn
+*.tmp
+*~
+.netrwhist
+Session.vim
+
+# Tags / generated indexes
+tags
+TAGS
+doc/tags
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE settings
+.vscode/
+.idea/

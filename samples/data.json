@@ -1,0 +1,64 @@
+{
+  "theme": "Nebula Drift: Rosette",
+  "version": "0.1.0",
+  "author": {
+    "name": "Iwan Kelaiah",
+    "role": "designer"
+  },
+  "palette": {
+    "background": "#0D0918",
+    "keyword": "#C43030",
+    "string": "#E8D080",
+    "function": "#8AB4E8",
+    "comment": "#4A3A6A"
+  },
+  "features": [
+    "diff-highlighting",
+    "git-signs",
+    "vimscript-extras",
+    "sql-extras",
+    "spell-highlighting",
+    "statusline-groups"
+  ],
+  "preview": {
+    "font": "Iosevka",
+    "lineNumbers": true,
+    "cursorLine": true,
+    "diagnostics": {
+      "error": "#C43030",
+      "warn": "#C86020",
+      "info": "#8AB4E8",
+      "hint": "#4A9090"
+    }
+  },
+  "samples": [
+    { "file": "python.py", "language": "python", "lines": 36 },
+    { "file": "db2.sql", "language": "sql", "dialect": "db2" },
+    { "file": "index.html", "language": "html", "path": "web/index.html" }
+  ],
+  "enabled": true,
+  "opacity": null,
+  "notes": "Showcase snippets are intentionally syntax-rich for screenshots.",
+  "ui": {
+    "statusline": {
+      "normal": { "fg": "#F4F0E8", "bg": "#171126" },
+      "insert": { "fg": "#0D0918", "bg": "#4A9090" },
+      "visual": { "fg": "#0D0918", "bg": "#A06DC8" }
+    },
+    "diagnostics": [
+      { "kind": "error", "count": 2, "color": "#C43030" },
+      { "kind": "warn", "count": 4, "color": "#C86020" },
+      { "kind": "info", "count": 7, "color": "#8AB4E8" }
+    ]
+  },
+  "metadata": {
+    "homepage": "https://example.invalid/nebula-drift-rosette",
+    "license": "MIT",
+    "maintainers": ["iwan", "contributors"],
+    "experimental": false
+  },
+  "changelog": [
+    { "version": "0.1.0", "date": "2026-02-25", "changes": ["initial palette", "sample suite"] },
+    { "version": "0.1.1", "date": "2026-02-26", "changes": ["keyword coverage pass"] }
+  ]
+}

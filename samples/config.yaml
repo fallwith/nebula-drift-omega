@@ -1,0 +1,76 @@
+theme:
+  name: "Nebula Drift: Rosette"
+  background: "#0D0918"
+  accents:
+    keyword: "#C43030"
+    string: "#E8D080"
+    function: "#8AB4E8"
+    comment: "#4A3A6A"
+  features:
+    - diff
+    - gitgutter
+    - sql
+    - vimscript
+    - treesitter
+    - lsp-diagnostics
+preview:
+  font: "Iosevka"
+  line_numbers: true
+  opacity: 0.95
+  cursorline: true
+  statusline:
+    mode: "#C43030"
+    file: "#8AB4E8"
+    branch: "#4A9090"
+    warning: "#C86020"
+  windows:
+    sidebar:
+      background: "#171126"
+      border: "#2B2142"
+    popup:
+      background: "#130F20"
+      shadow: true
+      radius: 10
+languages:
+  python:
+    strings: "#E8D080"
+    decorators: "#A06DC8"
+  sql:
+    keywords: "#C43030"
+    functions: "#8AB4E8"
+    numbers: "#D4A020"
+  markdown:
+    heading: "#F4F0E8"
+    code: "#8AB4E8"
+    quote: "#4A3A6A"
+automation:
+  screenshot:
+    command: "nvim -u NONE -S scripts/preview.vim"
+    outputs:
+      - "docs/python-sql.png"
+      - "docs/web-preview.png"
+  checks:
+    syntax:
+      enabled: true
+      strict: false
+    contrast:
+      min_ratio: 4.5
+      exceptions:
+        - "comment on background"
+        - "lineNr on statusline"
+profiles:
+  minimal:
+    italics: false
+    bold_keywords: true
+  rich:
+    italics: true
+    undercurl_diagnostics: true
+    transparency: false
+release:
+  semantic_versioning: true
+  channels:
+    - stable
+    - nightly
+  package_names:
+    vim_plug: "nebula-drift-rosette.vim"
+    lazy: "nebula-drift-rosette.vim"
