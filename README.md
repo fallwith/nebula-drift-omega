@@ -10,7 +10,8 @@ blue-white stellar highlights — all at your fingertips.
 
 ## Screenshot
 
-![Nebula Drift: Omega screenshot](assets/screenshot_01.png)
+![Nebula Drift: Omega screenshot 01](assets/screenshot_01.png)
+![Nebula Drift: Omega screenshot 02](assets/screenshot_02.png)
 
 ---
 
