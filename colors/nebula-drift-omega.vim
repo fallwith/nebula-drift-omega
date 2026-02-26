@@ -5,12 +5,12 @@
 " ============================================================
 "
 "  Installation:
-"    1. Copy to ~/.vim/colors/nebula-drift-omega.vim
-"    2. Add to your .vimrc:
-"         let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-"         let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+"    Plugin manager (vim-plug):
+"         Plug 'ikelaiah/nebula-drift-omega'
+"    Manual:
+"         Copy this file to ~/.vim/colors/ (or ~\vimfiles\colors\ on Windows)
+"    Then add to your .vimrc:
 "         set termguicolors
-"         set background=dark  " always dark
 "         colorscheme nebula-drift-omega
 "
 "  Supports: SQL, Python, JS, TS, PHP, HTML, CSS, SCSS/SASS,
