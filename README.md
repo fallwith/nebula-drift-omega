@@ -115,7 +115,8 @@ Dedicated, language-specific highlight groups for:
 | Go | Bash / Shell | PowerShell |
 | Pascal / Delphi | LISP | Scheme |
 | Racket | JSON | YAML |
-| INI / config | Markdown | Vim script |
+| Lua | INI / config | Markdown |
+| Vim script |  |  |
 
 All other languages fall back gracefully to the universal highlight groups.
 

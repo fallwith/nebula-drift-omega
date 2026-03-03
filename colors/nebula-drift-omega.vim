@@ -13,7 +13,7 @@
 "         set termguicolors
 "         colorscheme nebula-drift-omega
 "
-"  Supports: SQL, Python, JS, TS, PHP, HTML, CSS, SCSS/SASS,
+"  Supports: SQL, Python, JS, TS, PHP, HTML, CSS, SCSS/SASS, Lua,
 "            C, C++, Java, Rust, Go, Bash/Shell, PowerShell,
 "            YAML, JSON, INI, LISP, Scheme, Racket,
 "            Markdown, Pascal/Delphi, Vimscript
@@ -76,6 +76,35 @@ function! s:hi(group, fg, bg, attr)
   if a:fg == "" && a:bg == "" && a:attr == ""
     exec "hi " . a:group . " guifg=NONE guibg=NONE gui=NONE cterm=NONE"
   endif
+endfunction
+
+function! s:apply_nebula_heuristics() abort
+  if !exists("g:nebula_drift_omega_heuristic_syntax") || !g:nebula_drift_omega_heuristic_syntax
+    return
+  endif
+
+  if index(["c", "cpp", "java", "javascript", "typescript"], &filetype) < 0
+    return
+  endif
+
+  " Re-define cleanly when colorscheme is reloaded.
+  silent! syntax clear NebulaHeuristicCall
+  silent! syntax clear NebulaHeuristicVar
+  silent! syntax clear NebulaHeuristicSymbol
+  silent! syntax clear NebulaHeuristicKeywordGuard
+
+  " Symbols: make punctuation visible even when language syntax is sparse.
+  syntax match NebulaHeuristicSymbol display /[(){}\[\],.;]/
+
+  " Variables: common assignment/initialization targets.
+  syntax match NebulaHeuristicVar display /\<\h\w*\>\ze\s*\%([+\-*/%&|^]\)\?=/
+
+  " Function calls: generic and member-style invocations.
+  syntax match NebulaHeuristicCall display /\%(\.\|->\|::\)\s*\zs\h\w*\ze\s*(/
+  syntax match NebulaHeuristicCall display /\<\h\w*\>\ze\s*(/
+
+  " Guard control-flow keywords from call-style matching.
+  syntax keyword NebulaHeuristicKeywordGuard if else for while switch case return sizeof catch try throw do new delete
 endfunction
 
 " ============================================================
@@ -205,7 +234,7 @@ endfunction
   call s:hi("Special",       s:sienna1, "NONE",   "NONE")
   call s:hi("SpecialChar",   s:sienna1, "NONE",   "NONE")
   call s:hi("Tag",           s:amber0,  "NONE",   "NONE")
-  call s:hi("Delimiter",     s:fg1,     "NONE",   "NONE")
+  call s:hi("Delimiter",     s:sienna1, "NONE",   "NONE")
   call s:hi("SpecialComment",s:fg2,     "NONE",   "bold,italic")
   call s:hi("Debug",         s:rose0,   "NONE",   "NONE")
   call s:hi("Underlined",    s:teal0,   "NONE",   "underline")
@@ -222,7 +251,7 @@ endfunction
   call s:hi("sqlNumber",      s:olive0,  "NONE",  "NONE")
   call s:hi("sqlComment",     s:fg2,     "NONE",  "italic")
   call s:hi("sqlOperator",    s:sienna0, "NONE",  "NONE")
-  call s:hi("sqlVariable",    s:sienna1, "NONE",  "NONE")
+  call s:hi("sqlVariable",    s:var0,    "NONE",  "NONE")
   call s:hi("sqlFunction",    s:teal1,   "NONE",  "NONE")
 
   " ── Python ─────────────────────────────────────────────────
@@ -247,25 +276,40 @@ endfunction
   call s:hi("pythonFString",       s:jade0,   "NONE", "NONE")
 
   " ── JavaScript ─────────────────────────────────────────────
-  call s:hi("javaScriptFunction",    s:amber1,  "NONE", "bold")
-  call s:hi("javaScriptIdentifier",  s:amber1,  "NONE", "bold")
+  call s:hi("javaScriptFunction",    s:teal1,   "NONE", "NONE")
+  call s:hi("javaScriptIdentifier",  s:var0,    "NONE", "NONE")
+  call s:hi("javaScriptOperator",    s:sienna0, "NONE", "NONE")
   call s:hi("javaScriptMember",      s:teal1,   "NONE", "NONE")
   call s:hi("javaScriptType",        s:jade1,   "NONE", "NONE")
   call s:hi("javaScriptNull",        s:olive1,  "NONE", "bold")
   call s:hi("javaScriptNumber",      s:olive0,  "NONE", "NONE")
   call s:hi("javaScriptRegexpString",s:sienna1, "NONE", "NONE")
   call s:hi("javaScriptTemplateVar", s:sienna1, "NONE", "NONE")
+  call s:hi("javaScriptBraces",      s:sienna1, "NONE", "NONE")
+  call s:hi("javaScriptParens",      s:sienna1, "NONE", "NONE")
   call s:hi("jsArrowFunction",       s:sienna0, "NONE", "bold")
   call s:hi("jsClassKeyword",        s:amber1,  "NONE", "bold")
   call s:hi("jsExtendsKeyword",      s:amber0,  "NONE", "bold")
   call s:hi("jsExportDefault",       s:amber1,  "NONE", "bold")
   call s:hi("jsTemplateBraces",      s:sienna1, "NONE", "bold")
   call s:hi("jsObjectKey",           s:teal0,   "NONE", "NONE")
+  call s:hi("jsFuncCall",            s:teal1,   "NONE", "NONE")
+  call s:hi("jsFuncName",            s:teal1,   "NONE", "NONE")
+  call s:hi("jsVariableDef",         s:var0,    "NONE", "NONE")
+  call s:hi("jsOperator",            s:sienna0, "NONE", "NONE")
   call s:hi("jsThis",                s:sienna1, "NONE", "italic")
   call s:hi("jsImport",              s:amber1,  "NONE", "bold")
   call s:hi("jsFrom",                s:amber0,  "NONE", "bold")
   call s:hi("jsModuleKeyword",       s:amber1,  "NONE", "bold")
   call s:hi("jsFuncArgs",            s:fg1,     "NONE", "italic")
+
+  " Alternate JS syntax group spellings used by some runtime/plugins.
+  call s:hi("javascriptFunction",    s:teal1,   "NONE", "NONE")
+  call s:hi("javascriptIdentifier",  s:var0,    "NONE", "NONE")
+  call s:hi("javascriptOperator",    s:sienna0, "NONE", "NONE")
+  call s:hi("javascriptMember",      s:teal1,   "NONE", "NONE")
+  call s:hi("javascriptBraces",      s:sienna1, "NONE", "NONE")
+  call s:hi("javascriptParens",      s:sienna1, "NONE", "NONE")
 
   " ── PHP ────────────────────────────────────────────────────
   call s:hi("phpKeyword",        s:amber1,  "NONE", "bold")
@@ -370,6 +414,9 @@ endfunction
   call s:hi("pascalNumber",     s:olive0,  "NONE", "NONE")
   call s:hi("pascalFloat",      s:olive0,  "NONE", "NONE")
   call s:hi("pascalBoolean",    s:olive1,  "NONE", "bold")
+  call s:hi("pascalIdentifier", s:var0,    "NONE", "NONE")
+  call s:hi("pascalVariable",   s:var0,    "NONE", "NONE")
+  call s:hi("pascalParam",      s:var0,    "NONE", "italic")
   call s:hi("pascalOperator",   s:sienna0, "NONE", "NONE")
   call s:hi("pascalFunction",   s:teal1,   "NONE", "NONE")
   call s:hi("pascalPredefined", s:teal0,   "NONE", "NONE")
@@ -401,7 +448,7 @@ endfunction
   call s:hi("vimFunction",       s:teal1,   "NONE", "bold")
   call s:hi("vimUserFunc",       s:teal1,   "NONE", "NONE")
   call s:hi("vimFuncName",       s:teal1,   "NONE", "bold")
-  call s:hi("vimFuncVar",        s:sienna1, "NONE", "NONE")
+  call s:hi("vimFuncVar",        s:var0,    "NONE", "NONE")
   call s:hi("vimFuncSID",        s:sienna1, "NONE", "NONE")
   call s:hi("vimFuncBody",       s:fg0,     "NONE", "NONE")
   call s:hi("vimEndfunction",    s:amber1,  "NONE", "bold")
@@ -411,9 +458,9 @@ endfunction
   call s:hi("vimCallParen",      s:fg1,     "NONE", "NONE")
 
   " Variables & scope
-  call s:hi("vimVar",            s:sienna1, "NONE", "NONE")
+  call s:hi("vimVar",            s:var0,    "NONE", "NONE")
   call s:hi("vimScriptFuncName", s:teal1,   "NONE", "bold")
-  call s:hi("vimEnvVar",         s:sienna1, "NONE", "NONE")
+  call s:hi("vimEnvVar",         s:var0,    "NONE", "NONE")
   call s:hi("vimRegister",       s:sienna1, "NONE", "NONE")
 
   " Options
@@ -540,6 +587,10 @@ endfunction
   call s:hi("cStorageClass",     s:jade1,   "NONE", "bold")
   call s:hi("cStructure",        s:jade1,   "NONE", "NONE")
   call s:hi("cTypedef",          s:jade1,   "NONE", "italic")
+  call s:hi("cIdentifier",       s:var0,    "NONE", "NONE")
+  call s:hi("cVariable",         s:var0,    "NONE", "NONE")
+  call s:hi("cFunction",         s:teal1,   "NONE", "NONE")
+  call s:hi("cFunctionCall",     s:teal1,   "NONE", "NONE")
   call s:hi("cOperator",         s:sienna0, "NONE", "NONE")
   call s:hi("cInclude",          s:teal0,   "NONE", "NONE")
   call s:hi("cPreCondit",        s:amber0,  "NONE", "NONE")
@@ -567,6 +618,13 @@ endfunction
   call s:hi("cppNamespace",      s:teal1,   "NONE", "bold")
   call s:hi("cppTemplate",       s:teal0,   "NONE", "NONE")
   call s:hi("cppTemplateArg",    s:jade1,   "NONE", "NONE")
+  call s:hi("cppIdentifier",     s:var0,    "NONE", "NONE")
+  call s:hi("cppVariable",       s:var0,    "NONE", "NONE")
+  call s:hi("cppFunction",       s:teal1,   "NONE", "NONE")
+  call s:hi("cppFunctionName",   s:teal1,   "NONE", "NONE")
+  call s:hi("cppFunctionCall",   s:teal1,   "NONE", "NONE")
+  call s:hi("cppMember",         s:teal0,   "NONE", "NONE")
+  call s:hi("cppMinMax",         s:sienna0, "NONE", "NONE")
   call s:hi("cppModifier",       s:amber0,  "NONE", "NONE")
   call s:hi("cppConstant",       s:olive1,  "NONE", "bold")
   call s:hi("cppSTLnamespace",   s:teal1,   "NONE", "italic")
@@ -609,6 +667,9 @@ endfunction
   call s:hi("javaLabel",           s:amber0,  "NONE", "bold")
   call s:hi("javaTodo",            s:amber1,  s:bg2,  "bold,italic")
   call s:hi("javaBraces",          s:fg1,     "NONE", "NONE")
+  call s:hi("javaParen",           s:sienna1, "NONE", "NONE")
+  call s:hi("javaParen1",          s:sienna1, "NONE", "NONE")
+  call s:hi("javaParen2",          s:sienna1, "NONE", "NONE")
 
   " ── Rust ────────────────────────────────────────────────────
   call s:hi("rustKeyword",         s:amber1,  "NONE", "bold")
@@ -730,12 +791,13 @@ endfunction
   call s:hi("lispAtomMark",        s:sienna1, "NONE", "bold")
   call s:hi("lispList",            s:fg0,     "NONE", "NONE")
   call s:hi("lispFunc",            s:teal1,   "NONE", "bold")
-  call s:hi("lispVar",             s:sienna1, "NONE", "NONE")
+  call s:hi("lispVar",             s:var0,    "NONE", "NONE")
   call s:hi("lispString",          s:jade0,   "NONE", "NONE")
   call s:hi("lispNumber",          s:olive0,  "NONE", "NONE")
   call s:hi("lispFloat",           s:olive0,  "NONE", "NONE")
   call s:hi("lispSpecial",         s:sienna1, "NONE", "NONE")
   call s:hi("lispSpecialForm",     s:amber1,  "NONE", "bold")
+  call s:hi("lispOperator",        s:sienna0, "NONE", "NONE")
   call s:hi("lispBarSymbol",       s:sienna0, "NONE", "NONE")
   call s:hi("lispComment",         s:fg2,     "NONE", "italic")
   call s:hi("lispParen",           s:fg2,     "NONE", "NONE")
@@ -757,7 +819,8 @@ endfunction
   call s:hi("schemeAnd",           s:amber1,  "NONE", "bold")
   call s:hi("schemeOr",            s:amber1,  "NONE", "bold")
   call s:hi("schemeIdentifier",    s:var0,     "NONE", "NONE")
-  call s:hi("schemeVariable",      s:sienna1, "NONE", "NONE")
+  call s:hi("schemeVariable",      s:var0,    "NONE", "NONE")
+  call s:hi("schemeOperator",      s:sienna0, "NONE", "NONE")
   call s:hi("schemeString",        s:jade0,   "NONE", "NONE")
   call s:hi("schemeCharacter",     s:jade0,   "NONE", "NONE")
   call s:hi("schemeNumber",        s:olive0,  "NONE", "NONE")
@@ -852,6 +915,10 @@ endfunction
   call s:hi("typescriptUndefined",        s:olive1,  "NONE", "bold")
   call s:hi("typescriptComment",          s:fg2,     "NONE", "italic")
   call s:hi("typescriptLineComment",      s:fg2,     "NONE", "italic")
+  call s:hi("typescriptFuncCall",         s:teal1,   "NONE", "NONE")
+  call s:hi("typescriptProp",             s:teal0,   "NONE", "NONE")
+  call s:hi("typescriptObjectLabel",      s:teal0,   "NONE", "NONE")
+  call s:hi("typescriptParameter",        s:var0,    "NONE", "italic")
   call s:hi("typescriptException",        s:rose0,   "NONE", "bold")
   call s:hi("typescriptTodo",             s:amber1,  s:bg2,  "bold,italic")
 
@@ -923,6 +990,31 @@ endfunction
   call s:hi("ps1Attribute",       s:sienna1, "NONE", "italic")
   call s:hi("ps1Exception",       s:rose0,   "NONE", "bold")
   call s:hi("ps1Todo",            s:amber1,  s:bg2,  "bold,italic")
+
+  " ── Lua ─────────────────────────────────────────────────────
+  call s:hi("luaStatement",       s:amber1,  "NONE", "bold")
+  call s:hi("luaCond",            s:amber1,  "NONE", "bold")
+  call s:hi("luaRepeat",          s:amber1,  "NONE", "bold")
+  call s:hi("luaLabel",           s:amber0,  "NONE", "bold")
+  call s:hi("luaIn",              s:amber0,  "NONE", "bold")
+  call s:hi("luaOperator",        s:sienna0, "NONE", "NONE")
+  call s:hi("luaSymbolOperator",  s:sienna0, "NONE", "NONE")
+  call s:hi("luaFunction",        s:teal1,   "NONE", "NONE")
+  call s:hi("luaFunc",            s:teal1,   "NONE", "NONE")
+  call s:hi("luaFuncCall",        s:teal1,   "NONE", "NONE")
+  call s:hi("luaFuncArgName",     s:var0,    "NONE", "italic")
+  call s:hi("luaLocal",           s:amber0,  "NONE", "bold")
+  call s:hi("luaSpecialValue",    s:olive1,  "NONE", "bold")
+  call s:hi("luaConstant",        s:olive0,  "NONE", "NONE")
+  call s:hi("luaNumber",          s:olive0,  "NONE", "NONE")
+  call s:hi("luaString",          s:jade0,   "NONE", "NONE")
+  call s:hi("luaStringLong",      s:jade0,   "NONE", "NONE")
+  call s:hi("luaTable",           s:var0,    "NONE", "NONE")
+  call s:hi("luaBraces",          s:fg1,     "NONE", "NONE")
+  call s:hi("luaParen",           s:fg1,     "NONE", "NONE")
+  call s:hi("luaComment",         s:fg2,     "NONE", "italic")
+  call s:hi("luaCommentLong",     s:fg2,     "NONE", "italic")
+  call s:hi("luaCommentTodo",     s:amber1,  s:bg2,  "bold,italic")
 
   " ── SCSS ────────────────────────────────────────────────────
   call s:hi("scssVariable",       s:var0,    "NONE", "NONE")
@@ -1001,6 +1093,7 @@ endfunction
   call s:hi("racketContract",     s:jade1,   "NONE", "NONE")
   call s:hi("racketStruct",       s:jade1,   "NONE", "bold")
   call s:hi("racketTypeAnnot",    s:jade1,   "NONE", "italic")
+  call s:hi("racketOperator",     s:sienna0, "NONE", "NONE")
   hi link racketQuote             schemeQuote
   hi link racketQuoted            schemeQuoted
 
@@ -1055,7 +1148,9 @@ endfunction
   " ── Update variable roles in typed languages ─────────────────
   " C / C++ — variables distinct from types
   call s:hi("cVarDecl",           s:var0,    "NONE", "NONE")
+  call s:hi("cParameter",         s:var0,    "NONE", "italic")
   call s:hi("cppVarDecl",         s:var0,    "NONE", "NONE")
+  call s:hi("cppParameter",       s:var0,    "NONE", "italic")
   call s:hi("cppAttribute",       s:sienna1, "NONE", "italic")
 
   " Java — variables distinct from types
@@ -1080,7 +1175,122 @@ endfunction
 
   " TypeScript — explicit param and variable distinction
   call s:hi("typescriptParam",    s:var0,    "NONE", "italic")
-  call s:hi("typescriptObjectLabel", s:teal0,"NONE", "NONE")
+
+  " Lua — explicit variable and member distinction
+  call s:hi("luaLocalVar",        s:var0,    "NONE", "NONE")
+  call s:hi("luaGlobal",          s:teal0,   "NONE", "NONE")
+  call s:hi("luaDot",             s:fg2,     "NONE", "NONE")
+
+  " Heuristic fallback groups for sparse legacy syntax engines.
+  call s:hi("NebulaHeuristicCall",         s:teal1,   "NONE", "NONE")
+  call s:hi("NebulaHeuristicVar",          s:var0,    "NONE", "NONE")
+  call s:hi("NebulaHeuristicSymbol",       s:sienna1, "NONE", "NONE")
+  call s:hi("NebulaHeuristicKeywordGuard", s:amber1,  "NONE", "bold")
+
+  " ── Tree-sitter captures (Neovim) ───────────────────────────
+  if has("nvim")
+    " Generic capture defaults
+    call s:hi("@variable",              s:var0,    "NONE", "NONE")
+    call s:hi("@variable.parameter",    s:var0,    "NONE", "italic")
+    call s:hi("@variable.member",       s:teal0,   "NONE", "NONE")
+    call s:hi("@property",              s:teal0,   "NONE", "NONE")
+    call s:hi("@function",              s:teal1,   "NONE", "NONE")
+    call s:hi("@function.call",         s:teal1,   "NONE", "NONE")
+    call s:hi("@method",                s:teal1,   "NONE", "NONE")
+    call s:hi("@method.call",           s:teal1,   "NONE", "NONE")
+    call s:hi("@function.method",       s:teal1,   "NONE", "NONE")
+    call s:hi("@function.method.call",  s:teal1,   "NONE", "NONE")
+    call s:hi("@operator",              s:sienna0, "NONE", "NONE")
+    call s:hi("@keyword",               s:amber1,  "NONE", "bold")
+    call s:hi("@type",                  s:jade1,   "NONE", "NONE")
+    call s:hi("@string",                s:jade0,   "NONE", "NONE")
+    call s:hi("@number",                s:olive0,  "NONE", "NONE")
+    call s:hi("@boolean",               s:olive1,  "NONE", "bold")
+    call s:hi("@type.builtin",          s:jade1,   "NONE", "NONE")
+    call s:hi("@punctuation.delimiter", s:sienna1, "NONE", "NONE")
+    call s:hi("@punctuation.bracket",   s:fg1,     "NONE", "NONE")
+    call s:hi("@punctuation.special",   s:sienna1, "NONE", "NONE")
+
+    " JavaScript and TypeScript specific overrides
+    call s:hi("@variable.javascript",              s:var0,    "NONE", "NONE")
+    call s:hi("@variable.parameter.javascript",    s:var0,    "NONE", "italic")
+    call s:hi("@variable.member.javascript",       s:teal0,   "NONE", "NONE")
+    call s:hi("@function.javascript",              s:teal1,   "NONE", "NONE")
+    call s:hi("@function.call.javascript",         s:teal1,   "NONE", "NONE")
+    call s:hi("@operator.javascript",              s:sienna0, "NONE", "NONE")
+    call s:hi("@type.javascript",                  s:jade1,   "NONE", "NONE")
+    call s:hi("@type.builtin.javascript",          s:jade1,   "NONE", "NONE")
+    call s:hi("@variable.typescript",              s:var0,    "NONE", "NONE")
+    call s:hi("@variable.parameter.typescript",    s:var0,    "NONE", "italic")
+    call s:hi("@variable.member.typescript",       s:teal0,   "NONE", "NONE")
+    call s:hi("@function.typescript",              s:teal1,   "NONE", "NONE")
+    call s:hi("@function.call.typescript",         s:teal1,   "NONE", "NONE")
+    call s:hi("@operator.typescript",              s:sienna0, "NONE", "NONE")
+    call s:hi("@type.typescript",                  s:jade1,   "NONE", "NONE")
+    call s:hi("@type.builtin.typescript",          s:jade1,   "NONE", "NONE")
+    call s:hi("@variable.tsx",                     s:var0,    "NONE", "NONE")
+    call s:hi("@function.tsx",                     s:teal1,   "NONE", "NONE")
+    call s:hi("@operator.tsx",                     s:sienna0, "NONE", "NONE")
+    call s:hi("@type.tsx",                         s:jade1,   "NONE", "NONE")
+    call s:hi("@variable.jsx",                     s:var0,    "NONE", "NONE")
+    call s:hi("@function.jsx",                     s:teal1,   "NONE", "NONE")
+    call s:hi("@operator.jsx",                     s:sienna0, "NONE", "NONE")
+    call s:hi("@type.jsx",                         s:jade1,   "NONE", "NONE")
+
+    " C and C++ specific overrides
+    call s:hi("@variable.c",                       s:var0,    "NONE", "NONE")
+    call s:hi("@variable.parameter.c",             s:var0,    "NONE", "italic")
+    call s:hi("@property.c",                       s:teal0,   "NONE", "NONE")
+    call s:hi("@function.c",                       s:teal1,   "NONE", "NONE")
+    call s:hi("@function.call.c",                  s:teal1,   "NONE", "NONE")
+    call s:hi("@operator.c",                       s:sienna0, "NONE", "NONE")
+    call s:hi("@type.c",                           s:jade1,   "NONE", "NONE")
+    call s:hi("@type.builtin.c",                   s:jade1,   "NONE", "NONE")
+    call s:hi("@variable.cpp",                     s:var0,    "NONE", "NONE")
+    call s:hi("@variable.parameter.cpp",           s:var0,    "NONE", "italic")
+    call s:hi("@variable.member.cpp",              s:teal0,   "NONE", "NONE")
+    call s:hi("@property.cpp",                     s:teal0,   "NONE", "NONE")
+    call s:hi("@function.cpp",                     s:teal1,   "NONE", "NONE")
+    call s:hi("@function.call.cpp",                s:teal1,   "NONE", "NONE")
+    call s:hi("@method.cpp",                       s:teal1,   "NONE", "NONE")
+    call s:hi("@method.call.cpp",                  s:teal1,   "NONE", "NONE")
+    call s:hi("@operator.cpp",                     s:sienna0, "NONE", "NONE")
+    call s:hi("@type.cpp",                         s:jade1,   "NONE", "NONE")
+    call s:hi("@type.builtin.cpp",                 s:jade1,   "NONE", "NONE")
+
+    " Java specific overrides
+    call s:hi("@variable.java",                    s:var0,    "NONE", "NONE")
+    call s:hi("@variable.parameter.java",          s:var0,    "NONE", "italic")
+    call s:hi("@variable.member.java",             s:teal0,   "NONE", "NONE")
+    call s:hi("@property.java",                    s:teal0,   "NONE", "NONE")
+    call s:hi("@function.java",                    s:teal1,   "NONE", "NONE")
+    call s:hi("@function.call.java",               s:teal1,   "NONE", "NONE")
+    call s:hi("@method.java",                      s:teal1,   "NONE", "NONE")
+    call s:hi("@method.call.java",                 s:teal1,   "NONE", "NONE")
+    call s:hi("@operator.java",                    s:sienna0, "NONE", "NONE")
+    call s:hi("@type.java",                        s:jade1,   "NONE", "NONE")
+    call s:hi("@type.builtin.java",                s:jade1,   "NONE", "NONE")
+
+    " Lua specific overrides
+    call s:hi("@variable.lua",                     s:var0,    "NONE", "NONE")
+    call s:hi("@variable.parameter.lua",           s:var0,    "NONE", "italic")
+    call s:hi("@variable.member.lua",              s:teal0,   "NONE", "NONE")
+    call s:hi("@function.lua",                     s:teal1,   "NONE", "NONE")
+    call s:hi("@function.call.lua",                s:teal1,   "NONE", "NONE")
+    call s:hi("@operator.lua",                     s:sienna0, "NONE", "NONE")
+    call s:hi("@type.lua",                         s:jade1,   "NONE", "NONE")
+    call s:hi("@type.builtin.lua",                 s:jade1,   "NONE", "NONE")
+  endif
+
+  if !exists("g:nebula_drift_omega_heuristic_syntax")
+    let g:nebula_drift_omega_heuristic_syntax = 1
+  endif
+
+  augroup nebula_drift_omega_heuristics
+    autocmd!
+    autocmd Syntax c,cpp,java,javascript,typescript call s:apply_nebula_heuristics()
+  augroup END
+  call s:apply_nebula_heuristics()
 
 " ============================================================
 "  TERMINAL COLOURS (dark only)
